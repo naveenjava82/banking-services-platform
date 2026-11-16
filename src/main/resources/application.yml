@@ -1,0 +1,37 @@
+server:
+  port: 8080
+  forward-headers-strategy: framework
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:h2:mem:banking;MODE=PostgreSQL;DB_CLOSE_DELAY=-1}
+    username: ${DATABASE_USER:sa}
+    password: ${DATABASE_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+app:
+  demo-users:
+    customer1-password: ${CUSTOMER1_PASSWORD:demo-pass-1}
+    customer2-password: ${CUSTOMER2_PASSWORD:demo-pass-2}
+    admin-password: ${ADMIN_PASSWORD:demo-admin-pass}
+  statements:
+    directory: ${STATEMENT_DIR:./statements}
+    signing-secret: ${STATEMENT_SIGNING_SECRET:local-demo-secret-change-me-in-production-123456789}
+    max-ttl-seconds: 900
+  fraud:
+    amount-threshold: 10000.00
+    velocity-count: 3
+    velocity-window-minutes: 10
+    high-risk-merchants: CRYPTO-CASHOUT,GIFT-CARD-EXPRESS

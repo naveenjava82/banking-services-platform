@@ -1,0 +1,39 @@
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: banking
+      POSTGRES_USER: banking
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U banking -d banking"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:postgresql://postgres:5432/banking
+      DATABASE_USER: banking
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      CUSTOMER1_PASSWORD: ${CUSTOMER1_PASSWORD:?Set CUSTOMER1_PASSWORD}
+      CUSTOMER2_PASSWORD: ${CUSTOMER2_PASSWORD:?Set CUSTOMER2_PASSWORD}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD}
+      STATEMENT_SIGNING_SECRET: ${STATEMENT_SIGNING_SECRET:?Set STATEMENT_SIGNING_SECRET}
+      STATEMENT_DIR: /app/statements
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - statement_data:/app/statements
+
+volumes:
+  db_data:
+  statement_data:
